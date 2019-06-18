@@ -45,7 +45,11 @@ class Commands:
                 posts = r_bot.get_posts(command[1], "top", 1)
 
             elif len(command) == 3:
-                posts = r_bot.get_posts(command[1], command[2], 1)
+
+                try:
+                    posts = r_bot.get_posts(command[1], "top", int(command[2]))
+                except ValueError:
+                    posts = r_bot.get_posts(command[1], command[2], 1)
 
             elif len(command) == 4:
                 posts = r_bot.get_posts(command[1], command[2], int(command[3]))
@@ -63,10 +67,14 @@ class Commands:
 
         post = posts[-1]
 
-        if post['data']['is_self']:
-            await Commands.handle_selfposts(post, channel, bot)
-        else:
-            await Commands.handle_image_posts(post, channel, bot)
+        try:
+            if post['data']['is_self']:
+                await Commands.handle_selfposts(post, channel, bot)
+            else:
+                await Commands.handle_image_posts(post, channel, bot)
+        
+        except KeyError:
+            await channel.send("no posts found")
 
     @staticmethod
     async def handle_image_posts(post, channel, bot):
