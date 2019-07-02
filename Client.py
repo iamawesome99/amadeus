@@ -1,6 +1,8 @@
 import discord
-from Commands import Commands
-from Substitutions import Substitutions
+import Commands
+import Substitutions
+
+# TODO: Add a opening message when started
 
 
 class Client(discord.Client):
@@ -10,7 +12,10 @@ class Client(discord.Client):
 
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
+        Commands.create_bot()
+        print('Created Reddit bot!')
         self.update_subs()
+        print('Retrieved substitutions')
 
     async def on_message(self, message):
         if message.author.name != "Amadeus":
