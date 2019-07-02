@@ -1,202 +1,263 @@
 from RedditBot import RedditBot
-import discord
+import EmbedFactory
 import UrlHandler
 import json
+from datetime import datetime, timedelta
+import nHentai
 
-with open('config.json') as json_data_file:
-    r_data = json.load(json_data_file)['reddit']
-
-    r_bot = RedditBot(r_data['username'], r_data['password'],
-                      r_data['client-id'], r_data['secret-id'],
-                      "DiscordScraper/v1.0")
-
-r_bot.authorize()
+NON_NSFW_WARNING = "i ain't sending something nsfw in a non nsfw channel"
 
 
-class Commands:
+# TODO: my anime list/kitsu.io searcher thing
+# TODO: add a log file + logging
 
-    @staticmethod
-    async def general(message, bot):
+r_bot = None
 
-        content = message.content
 
-        for substitution in bot.substitutions:
+async def general(message, bot):
 
-            content = substitution(content)
+    content = message.content
 
-            if not bot.stack and content != message.content:
-                break
+    for substitution in bot.substitutions:
 
-        if content != message.content:
+        content = substitution(content)
 
-            await bot.send(content, message.channel)
+        if not bot.stack and content != message.content:
+            break
 
-    @staticmethod
-    async def help(message, bot):
-        pass
+    if content != message.content:
 
-    @staticmethod
-    async def get_post(message, bot):
-        command = message.content.split(" ")
-        channel = message.channel
+        await bot.send(content, message.channel)
 
-        try:
-            if len(command) == 2:
-                posts = r_bot.get_posts(command[1], "top", 1)
 
-            elif len(command) == 3:
+# TODO: combine get_post and get_multi_post
+async def get_post(message, bot):
+    command = message.content.split(" ")
 
-                try:
-                    posts = r_bot.get_posts(command[1], "top", int(command[2]))
-                except ValueError:
-                    posts = r_bot.get_posts(command[1], command[2], 1)
+    try:
+        if len(command) == 2:
+            posts = r_bot.get_posts(command[1], "top", 1)
 
-            elif len(command) == 4:
-                posts = r_bot.get_posts(command[1], command[2], int(command[3]))
-
-            else:
-                await channel.send("too many/too little arguments")
-                return
-
-        except KeyError:
-            await channel.send("reddit api error; one of the arguments is wrong")
-            return
-
-        if not posts:
-            await channel.send("no posts found")
-
-        post = posts[-1]
-
-        try:
-            if post['data']['is_self']:
-                await Commands.handle_selfposts(post, channel, bot)
-            else:
-                await Commands.handle_image_posts(post, channel, bot)
-        
-        except KeyError:
-            await channel.send("no posts found")
-
-    @staticmethod
-    async def handle_image_posts(post, channel, bot):
-        try:
-            link = post['data']['url']
-        except KeyError:
-            await bot.send("Something went wrong!", channel)
-            return
-
-        link = UrlHandler.handle(link)
-
-        if not link:
-            await Commands.handle_link_posts(post, channel, bot)
-            return
-
-        embed = discord.Embed()
-        embed.set_author(name=post['data']['title'], url="https://www.reddit.com" + post['data']['permalink'])
-        embed.set_footer(text="by u/" + post['data']['author'])
-        embed.set_image(url=link)
-        embed.colour = 16747360
-
-        await bot.send("", channel, embed=embed)
-
-    @staticmethod
-    async def handle_selfposts(post, channel, bot):
-
-        embed = discord.Embed()
-        embed.set_author(name=post['data']['title'], url="https://www.reddit.com" + post['data']['permalink'])
-        embed.set_footer(text="by u/" + post['data']['author'])
-        embed.description = post['data']['selftext']
-        embed.colour = 16747360
-
-        await bot.send("", channel, embed=embed)
-
-    @staticmethod
-    async def handle_link_posts(post, channel, bot):
-
-        embed = discord.Embed()
-        embed.set_author(name=post['data']['title'], url="https://www.reddit.com" + post['data']['permalink'])
-        embed.set_footer(text="by u/" + post['data']['author'])
-        embed.description = post['data']['url']
-        embed.colour = 16747360
-
-        await bot.send("", channel, embed=embed)
-
-    @staticmethod
-    async def get_multi_post(message, bot):
-        command = message.content.split(" ")
-        channel = message.channel
-
-        try:
-            if len(command) == 2:
-                posts = r_bot.get_posts(command[1], "top", 1)
-
-            elif len(command) == 3:
+        elif len(command) == 3:
+            try:
+                posts = r_bot.get_posts(command[1], "top", int(command[2]))
+            except ValueError:
                 posts = r_bot.get_posts(command[1], command[2], 1)
 
-            elif len(command) == 4:
-                posts = r_bot.get_posts(command[1], command[2], int(command[3]))
-
-            else:
-                await channel.send("too many/too little arguments")
-                return
-
-        except KeyError:
-            await channel.send("reddit api error; one of the arguments is wrong")
-            return
-
-        if not posts:
-            await channel.send("no posts found")
-
-        for post in posts:
-            if post['data']['is_self']:
-                await Commands.handle_selfposts(post, channel, bot)
-            else:
-                await Commands.handle_image_posts(post, channel, bot)
-
-    @staticmethod
-    async def stack(message, bot):
-        arg = message.content.split(" ")
-
-        try:
-            if arg[1].lower() in ("yes", "true", "t", "1"):
-                bot.stack = True
-            else:
-                bot.stack = False
-
-        except IndexError:
-            bot.stack = not bot.stack
-
-        await bot.send("Changed `stack` to `" + str(bot.stack) + "`", message.channel)
-        bot.update_subs()
-
-    @staticmethod
-    async def handle_command(command, message, bot):
-
-        try:
-            method = command_list[command]
-        except KeyError:
-            method = default_command
-
-        await method(message, bot)
-
-    @staticmethod
-    async def handle_message(message, bot):
-
-        if message.content.startswith(trigger):
-
-            command = message.content.strip(trigger).split()[0]
-            await Commands.handle_command(command, message, bot)
+        elif len(command) == 4:
+            posts = r_bot.get_posts(command[1], command[2], int(command[3]))
 
         else:
-            await Commands.general(message, bot)
+            await bot.send("too many/too little arguments", message.channel)
+            return
+
+    except KeyError:
+        await bot.send("reddit api error; one of the arguments is wrong", message.channel)
+        return
+
+    if not posts:
+        await bot.send("no posts found", message.channel)
+
+    post = posts[-1]
+
+    await handle_post(post, message, bot)
+
+
+async def get_multi_post(message, bot):
+    command = message.content.split(" ")
+    channel = message.channel
+
+    try:
+        if len(command) == 2:
+            posts = r_bot.get_posts(command[1], "top", 1)
+
+        elif len(command) == 3:
+            try:
+                posts = r_bot.get_posts(command[1], "top", int(command[2]))
+            except ValueError:
+                posts = r_bot.get_posts(command[1], command[2], 1)
+
+        elif len(command) == 4:
+            posts = r_bot.get_posts(command[1], command[2], int(command[3]))
+
+        else:
+            await channel.send("too many/too little arguments")
+            return
+
+    except KeyError:
+        await channel.send("reddit api error; one of the arguments is wrong")
+        return
+
+    if not posts:
+        await channel.send("no posts found")
+
+    for post in posts:
+        await handle_post(post, message, bot)
+
+    # TODO: Handle cross posts
+    # TODO: Handle selfposts with images in them
+    # TODO: Make spoiler/nsfw tags
+
+
+async def handle_post(post, message, bot):
+
+    try:  # attempt to get the data of the post
+        data = post['data']
+    except KeyError:  # if no data was found, than there is no post
+        await bot.send("no posts found", message.channel)
+        return
+
+    if data['is_self']:  # if the post is marked as a selfpost
+        embed = EmbedFactory.reddit_selfpost(data)
+
+    else:
+        try:  # check for a url
+            link = data['url']
+        except KeyError:  # if there is no url, then something is wrong; send a message and return
+            await bot.send("Something went wrong!", message.channel)
+            return
+
+        link = UrlHandler.handle(link)  # see if UrlHandler can understand the link
+
+        if not link:  # if UrlHandler failed (returns none, it's a link post)
+            embed = EmbedFactory.reddit_link_post(data)
+
+        else:  # if UrlHandler succeeded, it's an image post
+            embed = EmbedFactory.reddit_image_post(data, link)
+
+    await bot.send("", message.channel, embed=embed)
+
+
+async def stack(message, bot):
+    arg = message.content.split(" ")
+
+    try:
+        if arg[1].lower() in ("yes", "true", "t", "1"):
+            bot.stack = True
+        else:
+            bot.stack = False
+
+    except IndexError:
+        bot.stack = not bot.stack
+
+    await bot.send("Changed `stack` to `" + str(bot.stack) + "`", message.channel)
+    bot.update_subs()
+
+
+async def handle_command(command, message, bot):
+
+    try:
+        method = command_list[command]
+    except KeyError:
+        method = default_command
+
+    await method(message, bot)
+
+
+async def handle_message(message, bot):
+
+    if message.content.startswith(trigger):
+
+        command = message.content.strip(trigger).split()[0]
+        await handle_command(command, message, bot)
+
+    else:
+
+        try:
+            int(message.content)
+            await get_nhentai(message, bot)
+            return
+        except ValueError:
+            await general(message, bot)
+
+
+# TODO: *actually* build this method
+async def _help(message, bot):
+    bot.send("ask the present phone microwave; past phone microwave is too damn lazy to explain it", message.channel)
+
+
+# TODO: fix this so it's not sending negative pings
+async def ping(message, bot):
+
+    ping_time = message.created_at
+
+    pong_time = datetime.utcnow()
+
+    ping_milliseconds = (pong_time - ping_time) / timedelta(milliseconds=1)
+
+    await bot.send("Ping: "+str(ping_milliseconds)+"ms", message.channel)
+
+
+async def unknown_command(message, bot):
+    await bot.send("Even Amadeus is confused! (by your command)", message.channel)
+
+
+async def get_nhentai(message, bot):
+
+    try:
+        if not message.channel.is_nsfw():
+            await bot.send(NON_NSFW_WARNING, message.channel)
+            return
+    except AttributeError:
+        pass
+
+    gallery = nHentai.Gallery(message.content)
+
+    await bot.send("", message.channel, embed=gallery.create_embed())
+
+
+async def random_nhentai(message, bot):
+
+    try:
+        if not message.channel.is_nsfw():
+            await bot.send(NON_NSFW_WARNING, message.channel)
+            return
+    except AttributeError:
+        pass
+
+    gallery = nHentai.Gallery(nHentai.random())
+
+    await bot.send("", message.channel, embed=gallery.create_embed())
+
+
+async def nhentai_search(message, bot):
+
+    try:
+        if not message.channel.is_nsfw():
+            await bot.send(NON_NSFW_WARNING, message.channel)
+            return
+    except AttributeError:
+        pass
+
+    search_query = " ".join(message.content.split(" ")[1:])
+    results = nHentai.search(search_query)
+
+    await bot.send("", message.channel, embed=EmbedFactory.nhentai_gallery_list(search_query, results))
+
+
+def create_bot():
+    global r_bot
+
+    with open('config.json') as json_data_file:
+        r_data = json.load(json_data_file)['reddit']
+
+        r_bot = RedditBot(r_data['username'], r_data['password'],
+                          r_data['client-id'], r_data['secret-id'],
+                          "DiscordScraper/v1.0")
+
+    r_bot.authorize()
 
 
 command_list = {
-    'stack': Commands.stack,
-    'p': Commands.get_post,
-    'help': Commands.help,
-    'pm': Commands.get_multi_post,
+    'stack': stack,
+    'p': get_post,
+    'help': _help,
+    'pm': get_multi_post,
+    'ping': ping,
+    'r': random_nhentai,
+    's': nhentai_search
 }
 
-default_command = Commands.help
+default_command = unknown_command
 
 trigger = "/"
