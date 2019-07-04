@@ -7,10 +7,6 @@ import nHentai
 
 NON_NSFW_WARNING = "i ain't sending something nsfw in a non nsfw channel"
 
-
-# TODO: my anime list/kitsu.io searcher thing
-# TODO: add a log file + logging
-
 r_bot = None
 
 
@@ -30,11 +26,11 @@ async def general(message, bot):
         await bot.send(content, message.channel)
 
 
-# TODO: combine get_post and get_multi_post
 async def get_post(message, bot):
     command = message.content.split(" ")
 
     try:
+        r_bot.authorize()
         if len(command) == 2:
             posts = r_bot.get_posts(command[1], "top", 1)
 
@@ -68,6 +64,9 @@ async def get_multi_post(message, bot):
     channel = message.channel
 
     try:
+
+        r_bot.authorize()
+
         if len(command) == 2:
             posts = r_bot.get_posts(command[1], "top", 1)
 
@@ -93,10 +92,6 @@ async def get_multi_post(message, bot):
 
     for post in posts:
         await handle_post(post, message, bot)
-
-    # TODO: Handle cross posts
-    # TODO: Handle selfposts with images in them
-    # TODO: Make spoiler/nsfw tags
 
 
 async def handle_post(post, message, bot):
@@ -171,12 +166,10 @@ async def handle_message(message, bot):
             await general(message, bot)
 
 
-# TODO: *actually* build this method
 async def _help(message, bot):
     bot.send("ask the present phone microwave; past phone microwave is too damn lazy to explain it", message.channel)
 
 
-# TODO: fix this so it's not sending negative pings
 async def ping(message, bot):
 
     ping_time = message.created_at
