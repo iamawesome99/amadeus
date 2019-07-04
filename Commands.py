@@ -32,11 +32,11 @@ async def get_post(message, bot):
     try:
         r_bot.authorize()
         if len(command) == 2:
-            posts = r_bot.get_posts(command[1], "top", 1)
+            posts = r_bot.get_posts(command[1], "hot", 1)
 
         elif len(command) == 3:
             try:
-                posts = r_bot.get_posts(command[1], "top", int(command[2]))
+                posts = r_bot.get_posts(command[1], "hot", int(command[2]))
             except ValueError:
                 posts = r_bot.get_posts(command[1], command[2], 1)
 
@@ -68,11 +68,11 @@ async def get_multi_post(message, bot):
         r_bot.authorize()
 
         if len(command) == 2:
-            posts = r_bot.get_posts(command[1], "top", 1)
+            posts = r_bot.get_posts(command[1], "hot", 1)
 
         elif len(command) == 3:
             try:
-                posts = r_bot.get_posts(command[1], "top", int(command[2]))
+                posts = r_bot.get_posts(command[1], "hot", int(command[2]))
             except ValueError:
                 posts = r_bot.get_posts(command[1], command[2], 1)
 
