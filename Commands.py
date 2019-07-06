@@ -4,10 +4,14 @@ import UrlHandler
 import json
 from datetime import datetime, timedelta
 import nHentai
+import rule34
+import random
+
 
 NON_NSFW_WARNING = "i ain't sending something nsfw in a non nsfw channel"
 
 r_bot = None
+r34_bot = None
 
 
 async def general(message, bot):
@@ -195,7 +199,31 @@ async def nhentai_search(message, bot):
     await bot.send("", message.channel, embed=EmbedFactory.nhentai_gallery_list(search_query, results))
 
 
-def create_bot():
+async def rule34_search(message, bot):
+
+    tags = " ".join(message.content.split(" ")[1:])
+
+    try:
+        number = int(tags)
+
+        details = await r34_bot.getPostData(number)
+
+        tags = details['@tags']
+        image_url = details['@file_url']
+
+        embed = EmbedFactory.rule34_image(tags, image_url, number)
+        await bot.send("", message.channel, embed=embed)
+        return
+
+    except ValueError:
+
+        links = await r34_bot.getImageURLS(tags)
+        embed = EmbedFactory.rule34_image([], random.choice(links), "Random result for "+tags)
+
+        await bot.send("", message.channel, embed=embed)
+
+
+def create_r_bot():
     global r_bot
 
     with open('config.json') as json_data_file:
@@ -208,6 +236,12 @@ def create_bot():
     r_bot.authorize()
 
 
+def create_r34_bot(loop):
+    global r34_bot
+
+    r34_bot = rule34.Rule34(loop)
+
+
 command_list = {
     'stack': stack,
     'p': get_post,
@@ -215,9 +249,15 @@ command_list = {
     'pm': lambda m, b: get_post(m, b, multi=True),
     'ping': ping,
     'r': random_nhentai,
-    's': nhentai_search
+    's': nhentai_search,
+    '34': rule34_search
 }
 
 default_command = unknown_command
 
 trigger = "/"
+
+if __name__ == '__main__':
+    rule34 = rule34.Sync()
+    print(rule34.getImageURLS("lucina"))
+    print(rule34.getPostData(1818))
