@@ -87,6 +87,8 @@ def nhentai_tag_formatter(tags):
 
             j -= 1
             if len(tags_string) + len(str(j)) + sum([len(str(x)) for x in i]) > 990:
+                if j == 0:
+                    break
                 tags_string += "+" + str(j) + " more"
                 break
 
