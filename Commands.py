@@ -26,7 +26,7 @@ async def general(message, bot):
         await bot.send(content, message.channel)
 
 
-async def get_post(message, bot):
+async def get_post(message, bot, multi=False):
     command = message.content.split(" ")
 
     try:
@@ -54,44 +54,11 @@ async def get_post(message, bot):
     if not posts:
         await bot.send("no posts found", message.channel)
 
-    post = posts[-1]
-
-    await handle_post(post, message, bot)
-
-
-async def get_multi_post(message, bot):
-    command = message.content.split(" ")
-    channel = message.channel
-
-    try:
-
-        r_bot.authorize()
-
-        if len(command) == 2:
-            posts = r_bot.get_posts(command[1], "hot", 1)
-
-        elif len(command) == 3:
-            try:
-                posts = r_bot.get_posts(command[1], "hot", int(command[2]))
-            except ValueError:
-                posts = r_bot.get_posts(command[1], command[2], 1)
-
-        elif len(command) == 4:
-            posts = r_bot.get_posts(command[1], command[2], int(command[3]))
-
-        else:
-            await channel.send("too many/too little arguments")
-            return
-
-    except KeyError:
-        await channel.send("reddit api error; one of the arguments is wrong")
-        return
-
-    if not posts:
-        await channel.send("no posts found")
-
-    for post in posts:
-        await handle_post(post, message, bot)
+    if multi:
+        for post in posts:
+            await handle_post(post, message, bot)
+    else:
+        await handle_post(posts[-1], message, bot)
 
 
 async def handle_post(post, message, bot):
@@ -245,7 +212,7 @@ command_list = {
     'stack': stack,
     'p': get_post,
     'help': _help,
-    'pm': get_multi_post,
+    'pm': lambda m, b: get_post(m, b, multi=True),
     'ping': ping,
     'r': random_nhentai,
     's': nhentai_search
