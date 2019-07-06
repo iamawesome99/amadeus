@@ -1,8 +1,7 @@
 import discord
 import Commands
 import Substitutions
-
-# TODO: Add a opening message when started
+import asyncio
 
 
 class Client(discord.Client):
@@ -12,8 +11,10 @@ class Client(discord.Client):
 
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
-        Commands.create_bot()
+        Commands.create_r_bot()
         print('Created Reddit bot!')
+        Commands.create_r34_bot(asyncio.get_running_loop())
+        print('Created r34 bot')
         self.update_subs()
         print('Retrieved substitutions')
 
