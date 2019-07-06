@@ -86,13 +86,11 @@ def nhentai_tag_formatter(tags):
         for i in tags:
 
             j -= 1
-            if len(tags_string) + len(str(j)) + sum([len(x) for x in i]) > 990:
+            if len(tags_string) + len(str(j)) + sum([len(str(x)) for x in i]) > 990:
                 tags_string += "+" + str(j) + " more"
                 break
 
-
             tags_string += "[" + i[0] + "](https://nhentai.net" + i[2] + ") (" + str(i[1]) + ")\n"
-
 
         return tags_string
     return None
@@ -118,11 +116,12 @@ def nhentai_gallery_list(query, results):
 
         for i in results:
 
-            if len(description) + len(i) > 2048:
+            print(len(description), len(i[0]) + len(i[1]), len(description)+len(i))
+
+            if len(description) + len(i[0]) + len(i[1]) + 8 > 2048:
                 break
 
-            description += "**" + i[0] + "** - " + i[1]
-            description += "\n"
+            description += "**" + i[0] + "** - " + i[1] + "\n"
 
     else:
         description = "No results found."
