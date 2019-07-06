@@ -13,6 +13,11 @@ def reddit_default(data):
 def reddit_selfpost(data):
 
     embed = reddit_default(data)
+
+    # cap off maximum of 2048
+    if len(data['selftext']) > 2048:
+        data['selftext'] = data['selftext'][:2045] + "..."
+
     embed.description = data['selftext']
 
     return embed
@@ -80,22 +85,43 @@ def nhentai_gallery(_id, url, title, pages, tags, languages, artists, categories
 
 
 def nhentai_tag_formatter(tags):
-    j = len(tags)
-    if tags:
-        tags_string = ""
-        for i in tags:
 
-            j -= 1
-            if len(tags_string) + len(str(j)) + sum([len(str(x)) for x in i]) > 990:
-                if j == 0:
-                    break
-                tags_string += "+" + str(j) + " more"
-                break
+    tags = ["[" + i[0] + "](https://nhentai.net" + i[2] + ") (" + str(i[1]) + ")\n" for i in tags]
 
-            tags_string += "[" + i[0] + "](https://nhentai.net" + i[2] + ") (" + str(i[1]) + ")\n"
+    ret, left = list_maker(tags, 1020)
 
-        return tags_string
-    return None
+    if left != 0:
+        ret += "+" + str(left) + " more"
+
+    return ret
+
+
+def nhentai_gallery_list(query, results):
+
+    embed = discord.Embed()
+    embed.colour = 15476564
+
+    embed.set_author(name="Search results for: " + query)
+
+    results = ["**" + x[0] + "** - " + x[1] + "\n" for x in results]
+
+    embed.description = list_maker(results, 2048)[0]
+
+    return embed
+
+
+def rule34_image(tags, image_url, title):
+    embed = discord.Embed()
+    embed.colour = 11199907
+
+    embed.set_author(name=str(title))
+    embed.set_image(url=image_url)
+
+    tag_string = list_maker(tags, 2048)[0]
+    if tag_string:
+        embed.add_field(name="Tags", value=tag_string)
+
+    return embed
 
 
 def blank(message):
@@ -106,28 +132,18 @@ def blank(message):
     return embed
 
 
-def nhentai_gallery_list(query, results):
+def list_maker(_list, _max):
 
-    embed = discord.Embed()
-    embed.colour = 15476564
+    j = len(_list)
 
-    embed.set_author(name="Search results for: " + query)
+    ret = ""
 
-    if results:
-        description = ""
+    for i in _list:
 
-        for i in results:
+        if len(i) + len(ret) > _max:
+            return ret, j
 
-            print(len(description), len(i[0]) + len(i[1]), len(description)+len(i))
+        j -= 1
+        ret += str(i)
 
-            if len(description) + len(i[0]) + len(i[1]) + 8 > 2048:
-                break
-
-            description += "**" + i[0] + "** - " + i[1] + "\n"
-
-    else:
-        description = "No results found."
-
-    embed.description = description
-
-    return embed
+    return ret, 0
