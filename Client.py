@@ -30,6 +30,7 @@ class Client(discord.Client):
         self.substitutions.extend(Substitutions.shoot_me())
         self.substitutions.extend(Substitutions.kill_me())
         self.substitutions.extend(Substitutions.stab_me())
+        self.substitutions.extend(Substitutions.nullpo())
 
     async def send(self, message, channel, file=None, filename=None, embed=None):
 
