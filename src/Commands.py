@@ -206,6 +206,13 @@ async def nhentai_search(message, bot):
 
 async def rule34_search(message, bot):
 
+    try:
+        if not message.channel.is_nsfw():
+            await bot.send(NON_NSFW_WARNING, message.channel)
+            return
+    except AttributeError:
+        pass
+
     tags = " ".join(message.content.split(" ")[1:])
 
     try:
