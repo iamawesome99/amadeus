@@ -236,6 +236,10 @@ async def rule34_search(message, bot):
 
 
 async def forgotten_emote(message, bot):
+    
+    if wanted_emote == "list":
+        await bot.send("Current forgotten emotes:\n`" + " ".join(FORGOTTEN_IMAGES.keys()) + "`", message.channel)
+        return
 
     wanted_emote = " ".join(message.content.split(" ")[1:])
 
