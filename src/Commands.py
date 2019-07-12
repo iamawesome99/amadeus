@@ -5,6 +5,13 @@ from src import nHentai, UrlHandler, EmbedFactory
 import rule34
 import random
 
+IMAGES_BASE_PATH = "C:\\Users\\Zachary\\Desktop\\amadeus\\data\\forgotten_images\\"
+
+FORGOTTEN_IMAGES = {
+
+    "test": IMAGES_BASE_PATH + "test.jpg"
+
+}
 
 NON_NSFW_WARNING = "i ain't sending something nsfw in a non nsfw channel"
 
@@ -221,6 +228,17 @@ async def rule34_search(message, bot):
         await bot.send("", message.channel, embed=embed)
 
 
+async def forgotten_emote(message, bot):
+
+    wanted_emote = " ".join(message.content.split(" ")[1:])
+
+    try:
+        await bot.send("", message.channel, file=FORGOTTEN_IMAGES[wanted_emote],
+                       filename=FORGOTTEN_IMAGES[wanted_emote].split("\\")[-1])
+    except KeyError:
+        await bot.send("Unknown forgotten image", message.channel)
+
+
 def create_r_bot():
     global r_bot
 
@@ -249,7 +267,7 @@ command_list = {
     'r': random_nhentai,
     's': nhentai_search,
     '34': rule34_search,
-    'p': forgotten_emote
+    'f': forgotten_emote
 }
 
 default_command = unknown_command
