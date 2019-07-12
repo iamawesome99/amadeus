@@ -1,9 +1,7 @@
-from RedditBot import RedditBot
-import EmbedFactory
-import UrlHandler
+from src.RedditBot import RedditBot
 import json
 from datetime import datetime, timedelta
-import nHentai
+from src import nHentai, UrlHandler, EmbedFactory
 import rule34
 import random
 
@@ -218,7 +216,7 @@ async def rule34_search(message, bot):
     except ValueError:
 
         links = await r34_bot.getImageURLS(tags)
-        embed = EmbedFactory.rule34_image([], random.choice(links), "Random result for "+tags)
+        embed = EmbedFactory.rule34_image([], random.choice(links), "Random result for " + tags)
 
         await bot.send("", message.channel, embed=embed)
 
@@ -226,7 +224,7 @@ async def rule34_search(message, bot):
 def create_r_bot():
     global r_bot
 
-    with open('config.json') as json_data_file:
+    with open('data//config.json') as json_data_file:
         r_data = json.load(json_data_file)['reddit']
 
         r_bot = RedditBot(r_data['username'], r_data['password'],
@@ -250,7 +248,8 @@ command_list = {
     'ping': ping,
     'r': random_nhentai,
     's': nhentai_search,
-    '34': rule34_search
+    '34': rule34_search,
+    'p': forgotten_emote
 }
 
 default_command = unknown_command

@@ -1,6 +1,5 @@
 import discord
-import Commands
-import Substitutions
+from src import Commands, Substitutions
 import asyncio
 
 

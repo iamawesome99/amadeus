@@ -5,7 +5,7 @@ def stands():
 
     stylized_stand_names = []
 
-    with open('stand_names.txt', 'r') as read_file:
+    with open('data//stand_names.txt', 'r') as read_file:
         stand_names = read_file.readlines()
         stand_names = [i[:-1] for i in stand_names]
 

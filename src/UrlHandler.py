@@ -1,5 +1,5 @@
 import re
-import imgur_url
+from src import imgur_url
 import urllib.request
 
 url = imgur_url.ImgurURL()

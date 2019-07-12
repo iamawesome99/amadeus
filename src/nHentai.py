@@ -1,5 +1,5 @@
 import requests
-import EmbedFactory
+from src import EmbedFactory
 import urllib
 
 api_url = "https://nhentai.net/api/gallery/"
