@@ -5,7 +5,7 @@ from src import nHentai, UrlHandler, EmbedFactory
 import rule34
 import random
 
-IMAGES_BASE_PATH = "C:\\Users\\Zachary\\Desktop\\amadeus\\data\\forgotten_images\\"
+IMAGES_BASE_PATH = "[redacted]"
 
 FORGOTTEN_IMAGES = {
 
