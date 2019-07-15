@@ -35,7 +35,7 @@ def beginning_b():
 
 
 def im_x():
-    return [lambda x: re.sub("^.*( |^)i'?m (.+)", r"Hi \2, I'm dad!", x, flags=re.I | re.MULTILINE)]
+    return [lambda x: re.sub("^.*( |^)i['‘ʼ’]?m (.+)", r"Hi \2, I'm dad!", x, flags=re.I | re.MULTILINE)]
 
 
 def shoot_me():
