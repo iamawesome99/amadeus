@@ -148,13 +148,15 @@ async def _help(message, bot):
 
 async def ping(message, bot):
 
-    ping_time = message.created_at
+    ping_time = datetime.utcnow()
+
+    message = await bot.send("Pinging...", message.channel)
 
     pong_time = datetime.utcnow()
 
     ping_milliseconds = (pong_time - ping_time) / timedelta(milliseconds=1)
 
-    await bot.send("Ping: "+str(ping_milliseconds)+"ms", message.channel)
+    await message.edit(content="Ping: %d ms" % ping_milliseconds)
 
 
 async def unknown_command(message, bot):
@@ -236,17 +238,20 @@ async def rule34_search(message, bot):
 
 
 async def forgotten_emote(message, bot):
-    
+
+    wanted_emote = " ".join(message.content.split(" ")[1:])
+
     if wanted_emote == "list":
         await bot.send("Current forgotten emotes:\n`" + " ".join(FORGOTTEN_IMAGES.keys()) + "`", message.channel)
         return
 
-    wanted_emote = " ".join(message.content.split(" ")[1:])
-
     try:
+
         await bot.send("", message.channel, file=FORGOTTEN_IMAGES[wanted_emote],
                        filename=FORGOTTEN_IMAGES[wanted_emote].split("\\")[-1])
+
     except KeyError:
+
         await bot.send("Unknown forgotten image", message.channel)
 
 
@@ -284,6 +289,7 @@ command_list = {
 default_command = unknown_command
 
 trigger = "/"
+
 
 if __name__ == '__main__':
     rule34 = rule34.Sync()
