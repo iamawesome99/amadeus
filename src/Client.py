@@ -31,6 +31,8 @@ class Client(discord.Client):
         self.substitutions.extend(Substitutions.kill_me())
         self.substitutions.extend(Substitutions.stab_me())
         self.substitutions.extend(Substitutions.nullpo())
+        self.substitutions.extend(Substitutions.cyanide())
+        self.substitutions.extend(Substitutions.thanks_bot())
 
     async def send(self, message, channel, file=None, filename=None, embed=None):
 
