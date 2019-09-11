@@ -79,6 +79,7 @@ async def handle_post(post, message, bot):
         return
 
     if data['is_self']:  # if the post is marked as a selfpost
+        print("self_post", data)
         embed = EmbedFactory.reddit_selfpost(data)
 
     else:
@@ -88,12 +89,15 @@ async def handle_post(post, message, bot):
             await bot.send("Something went wrong!", message.channel)
             return
 
+        print("Handling link:", link)
         link = UrlHandler.handle(link)  # see if UrlHandler can understand the link
 
         if not link:  # if UrlHandler failed (returns none, it's a link post)
+            print("link_post", data)
             embed = EmbedFactory.reddit_link_post(data)
 
         else:  # if UrlHandler succeeded, it's an image post
+            print("imagepost", data)
             embed = EmbedFactory.reddit_image_post(data, link)
 
     await bot.send("", message.channel, embed=embed)
