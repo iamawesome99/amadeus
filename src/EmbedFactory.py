@@ -10,12 +10,19 @@ def reddit_default(data):
     embed.set_footer(text="by u/" + data['author'])
     embed.colour = 16733952
 
+    if data['spoiler']:
+        embed.description = "Spoiler Alert!\nClick the link to thread if you are interested!"
+        return embed
+
     return embed
 
 
 def reddit_selfpost(data):
 
     embed = reddit_default(data)
+
+    if data['spoiler']:
+        return embed
 
     # cap off maximum of 2048
     if len(data['selftext']) > 2048:
@@ -29,6 +36,10 @@ def reddit_selfpost(data):
 def reddit_link_post(data):
 
     embed = reddit_default(data)
+
+    if data['spoiler']:
+        return embed
+
     embed.description = data['url']
 
     return embed
@@ -37,6 +48,10 @@ def reddit_link_post(data):
 def reddit_image_post(data, image_link):
 
     embed = reddit_default(data)
+
+    if data['spoiler']:
+        return embed
+
     embed.set_image(url=image_link)
 
     return embed
