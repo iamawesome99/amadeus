@@ -26,7 +26,7 @@ def reddit_selfpost(data):
 def reddit_link_post(data):
 
     embed = reddit_default(data)
-    embed.description = data['selftext']
+    embed.description = data['url']
 
     return embed
 
