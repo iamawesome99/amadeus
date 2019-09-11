@@ -216,8 +216,8 @@ def nullpo():
 
 
 def cyanide():
-    return [lambda x: re.sub("cyanide|cyan|cya|see (you|ya)", "cyanide :wave:", x, flags=re.I | re.M)]
+    return [lambda x: re.sub("^.*(cyanide|cyan|cya|see (you|ya)).*", "cyanide :wave:", x, flags=re.I | re.M)]
 
 
 def thanks_bot():
-    return [lambda x: re.sub("thanks bot", "<:thumb:595365230666711056>", x, flags=re.I | re.M)]
+    return [lambda x: re.sub("^.*thanks bot.*", "<:thumb:595365230666711056>", x, flags=re.I | re.M)]
