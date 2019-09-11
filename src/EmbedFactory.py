@@ -1,9 +1,12 @@
 import discord
 
+
 def reddit_default(data):
 
     embed = discord.Embed()
     embed.set_author(name=data['title'], url="https://www.reddit.com" + data['permalink'])
+    embed.title = "Link to thread"
+    embed.url = "https://www.reddit.com" + data['permalink']
     embed.set_footer(text="by u/" + data['author'])
     embed.colour = 16733952
 
@@ -42,18 +45,25 @@ def reddit_image_post(data, image_link):
 def nhentai_gallery(_id, url, title, pages, tags, languages, artists, categories, parodies, characters, groups,
                     cover_url):
 
+    tag_string = nhentai_tag_formatter(tags)
+
     embed = discord.Embed()
     embed.colour = 15476564
 
-    embed.set_author(name=_id, url=url)
-
     embed.title = title
 
-    embed.set_thumbnail(url=cover_url)
+    if not ("lolicon" in tag_string or "shotacon" in tag_string):
+        embed.set_thumbnail(url=cover_url)
+        embed.url = url
+
+        embed.set_author(name=_id, url=url)
+
+    else:
+
+        embed.set_author(name=_id)
 
     embed.add_field(name="Pages", value=pages)
 
-    tag_string = nhentai_tag_formatter(tags)
     if tag_string:
         embed.add_field(name="Tags", value=tag_string)
 
@@ -86,7 +96,16 @@ def nhentai_gallery(_id, url, title, pages, tags, languages, artists, categories
 
 def nhentai_tag_formatter(tags):
 
-    tags = ["[" + i[0] + "](https://nhentai.net" + i[2] + ") (" + str(i[1]) + ")\n" for i in tags]
+    new_tags = []
+
+    for i in tags:
+
+        if i[0] != "lolicon" and i[0] != "shotacon":
+            new_tags.append("[" + i[0] + "](https://nhentai.net" + i[2] + ") (" + str(i[1]) + ")\n")
+        else:
+            new_tags.append(i[0] + " (" + str(i[1]) + ")\n")
+
+    tags = new_tags
 
     ret, left = list_maker(tags, 1020)
 
