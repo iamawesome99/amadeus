@@ -5,7 +5,7 @@ def reddit_default(data):
     embed = discord.Embed()
     embed.set_author(name=data['title'], url="https://www.reddit.com" + data['permalink'])
     embed.set_footer(text="by u/" + data['author'])
-    embed.colour = 16747360
+    embed.colour = 16733952
 
     return embed
 
