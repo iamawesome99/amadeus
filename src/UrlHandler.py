@@ -2,8 +2,6 @@ import re
 from src import imgur_url
 import urllib.request
 
-url = imgur_url.ImgurURL()
-
 
 def handle(link):
 
@@ -18,13 +16,12 @@ def handle(link):
     elif link.endswith(".jpg") or link.endswith(".png"):
         return link
 
-    elif "imgur.com/a/" in link:
-        link = url.get_imgur_urls(link)[0]
-        return link
-        # TODO: Remove imgur_url dependency by implementing own function
-
     elif "imgur.com" in link:
-        link = url.get_single_image_url(link)[0]
+        link, code = imgur_url.get_imgur_urls(link)[0]
+
+        if code == -1:
+            return None
+
         return link
 
     elif "gfycat.com" in link:
